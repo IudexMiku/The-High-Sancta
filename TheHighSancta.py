@@ -42,13 +42,29 @@ def getOdds(violantSky):
     if violantSky <= (dividingViolantSkyPoint / lossChance):
         return initialCounterlight - lossChance * counterlightLossNormal * violantSky
     else:
-        return dividingCounterlightPoint + dividingViolantSkyPoint - lossChance * counterlightLossSpecial * violantSky
+        return dividingCounterlightPoint - lossChance * counterlightLossSpecial * (violantSky - dividingViolantSkyPoint)
+        
+def makeWikiTable():
+    print("""{| class="mw-collapsible mw-collapsed article-table"
+!{{IL|Towards a Violant Sky|Appearance=Sky}}
+!{{e}} Payout
+!Actions
+!Progression Chance
+|-""")
+    for row in data:
+        for index, element in enumerate(row):
+            if index == 1:
+                print(f'|{round(element, 2)}')
+            else:
+                print(f'|{round(element, 3)}')
+        print(f'|-')
+    print('|}')
 
 print(f'sky\tprofit\tacts\tprogression odds')
+
 for violantSky in range(1, 13):
     #odds
-    if violantSky != 1:
-        counterlight = getOdds(violantSky)
+    counterlight = getOdds(violantSky - 1)
     
     #profit
     if alternateGainVSMin <= violantSky and violantSky <= alternateGainVSMax:
@@ -56,6 +72,7 @@ for violantSky in range(1, 13):
         echoGain = defaultGain * (1 - altGainOdds) + alternateGain * altGainOdds - costPerLayer
     else:
         echoGain = defaultGain - costPerLayer
+    
     #impressions
     impressions += impressionsBaseGain + impressionsVSMult * violantSky
     profit += echoGain + defaultGain * (impressions // impressionsScaling)
@@ -67,19 +84,8 @@ for violantSky in range(1, 13):
     print(f'{violantSky}\t\t{round(profit, 1)}\t\t{actionsTaken}\t\t{counterlight/100}')
     data.append([violantSky, profit, actionsTaken, counterlight/100])
 
+#Wiki table
+makeWikiTable()
+
 #EPA calculation
 print(f'Expected {round(getExpectedValue(1), 4)} echoes over {round(getExpectedValue(2), 4)} actions => {round(getExpectedValue(1) / getExpectedValue(2), 4)} EPA')
-
-#Wiki table
-print("""{| class="mw-collapsible mw-collapsed article-table"
-!{{IL|Towards a Violant Sky|Appearance=Sky}}
-!{{e}} Payout
-!Actions
-!Probability
-|-""")
-for row in data:
-    for element in row:
-        print(f'|{round(element, 2)}')
-    print(f'|-')
-print('|}')
-
